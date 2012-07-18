@@ -1,8 +1,3 @@
-if require?
-  Backbone = require "backbone"
-else
-  Backbone = window.Backbone
-
 # A mixin for tracking outgoing bindings. Use `@listenTo target`
 # instead of `target.bind` to track the binding for later removal, and
 # use `@stopListening` to remove all outgoing bindings.

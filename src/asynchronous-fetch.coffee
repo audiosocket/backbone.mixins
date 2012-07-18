@@ -1,10 +1,3 @@
-if require?
-  Backbone = require "backbone"
-  _        = require "underscore"
-else
-  Backbone = window.Backbone
-  _        = window._
-
 # Asynchronous fetching for Backbone models and collection
 
 # Delayed search works as follows:

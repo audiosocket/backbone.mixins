@@ -1,10 +1,3 @@
-if require?
-  Backbone = require "backbone"
-  _        = require "underscore"
-else
-  Backbone = window.Backbone
-  _        = window._
-
 # A mixin for objects with parent/child relationships.
 
 Backbone.Ancestry =

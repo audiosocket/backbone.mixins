@@ -1,10 +1,3 @@
-if require?
-  Backbone = require "backbone"
-  _        = require "underscore"
-else
-  Backbone = window.Backbone
-  _        = window._
-
 # A mixin for decorating function calls in a more debuggable way.
 
 Backbone.Decoratable =

@@ -9,4 +9,4 @@ call = (command, fn) ->
     fn err if fn?
 
 task 'build', 'Compile coffee scripts into plain Javascript files', ->
-  call "coffee -c -o lib src/*.coffee"
+  call "coffee -c -j backbone.mixins.js backbone.mixins.coffee src/*.coffee"

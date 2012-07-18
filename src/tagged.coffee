@@ -1,10 +1,3 @@
-if require?
-  Backbone = require "backbone"
-  _        = require "underscore"
-else
-  Backbone = window.Backbone
-  _        = window._
-
 # Common utility functions for
 # things with tags: [..] field
 
