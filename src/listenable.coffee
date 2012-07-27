@@ -10,7 +10,7 @@ Backbone.Listenable =
   listenTo: (src, event, fn) ->
     @bindings ?= []
 
-    src.bind event, fn, this
+    src.on event, fn, this
     @bindings.push event: event, fn: fn, src: src
 
     this

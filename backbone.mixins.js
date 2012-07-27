@@ -29,8 +29,8 @@
     },
     createChild: function(kind, attributes, options) {
       var child;
-      (attributes || (attributes = {})).parent = this;
       child = new kind(attributes, options);
+      child.parent = this;
       this.addChild(child);
       return child;
     },
@@ -43,12 +43,60 @@
     }
   };
 
+  Backbone.LazyFetch = function(object) {
+    var oldFetch;
+    oldFetch = object.fetch;
+    return _.extend(object, {
+      fetch: function(options) {
+        var cb, error, success, _base;
+        if (options == null) {
+          options = {};
+        }
+        if (!_.isEmpty(object.fetch.callbacks)) {
+          return object.fetch.callbacks.push(options);
+        }
+        success = (options != null ? options.success : void 0) || function() {};
+        error = (options != null ? options.error : void 0) || function() {};
+        if (object.fetch.fetched) {
+          return success(this, this.attributes);
+        }
+        (_base = object.fetch).callbacks || (_base.callbacks = []);
+        object.fetch.callbacks.push({
+          success: success,
+          error: error
+        });
+        cb = function(name) {
+          return function() {
+            var args, callbacks, self;
+            callbacks = object.fetch.callbacks;
+            object.fetch.callbacks = [];
+            self = this;
+            args = arguments;
+            if (name === "success") {
+              object.fetch.fetched = true;
+            }
+            return _.each(callbacks, function(cb) {
+              if ((cb != null ? cb[name] : void 0) != null) {
+                return cb[name].apply(self, args);
+              }
+            });
+          };
+        };
+        options = _.extend(options, {
+          success: cb("success"),
+          error: cb("error")
+        });
+        return oldFetch.call(this, options);
+      }
+    });
+  };
+
   Backbone.Listenable = {
     listenTo: function(src, event, fn) {
       if (this.bindings == null) {
         this.bindings = [];
       }
-      src.bind(event, fn, this);
+      src.on(event, fn, this);
       this.bindings.push({
         event: event,
         fn: fn,

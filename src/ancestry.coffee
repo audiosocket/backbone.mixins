@@ -28,8 +28,8 @@ Backbone.Ancestry =
   # Returns the new instance.
 
   createChild: (kind, attributes, options) ->
-    (attributes ||= {}).parent = this
     child = new kind attributes, options
+    child.parent = this
     @addChild child
     child
 
