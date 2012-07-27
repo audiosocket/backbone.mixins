@@ -43,6 +43,102 @@
     }
   };
 
+  Backbone.AsynchronousFetch = function(object) {
+    var oldFetch;
+    oldFetch = object.fetch;
+    return _.extend(object, {
+      fetchTimeout: 700,
+      fetchTask: null,
+      ajaxFetch: false,
+      asyncFetch: function(options) {
+        var fn, trigger,
+          _this = this;
+        if (this.fetchTask != null) {
+          clearTimeout(this.fetchTask);
+          this.fetchTask = null;
+          trigger = false;
+        } else {
+          trigger = true;
+        }
+        fn = function() {
+          return _this.fetch(options);
+        };
+        this.fetchTask = setTimeout(fn, this.fetchTimeout);
+        if (trigger) {
+          return this.trigger("fetching");
+        }
+      },
+      fetch: function(options) {
+        var cb, error, self, success;
+        if (options == null) {
+          options = {};
+        }
+        if (this.fetchTask != null) {
+          clearTimeout(this.fetchTask);
+        } else {
+          this.ajaxFetch = true;
+          this.trigger("fetching");
+        }
+        self = this;
+        cb = function() {
+          self.ajaxFetch = false;
+          self.fetchTask = null;
+          return self.trigger("fetching");
+        };
+        success = options.success;
+        options.success = function() {
+          cb();
+          if (success != null) {
+            return success.call(this, arguments);
+          }
+        };
+        error = options.error;
+        options.error = function() {
+          cb();
+          if (error != null) {
+            return error.call(this, arguments);
+          }
+        };
+        return oldFetch.call(object, options);
+      }
+    });
+  };
+
+  Backbone.Decoratable = {
+    decorate: function(n, fn) {
+      var target, wrap;
+      target = this[n];
+      if (!_.isFunction(target)) {
+        throw new Error("Can't decorate " + n + ", it's not a Function.");
+      }
+      if (target.fns == null) {
+        wrap = function() {
+          var args, finish, fns,
+            _this = this;
+          args = Array.prototype.slice.call(arguments);
+          fns = _.clone(wrap.fns);
+          finish = function() {
+            var next;
+            next = fns.shift();
+            if (next) {
+              return next.call(_this, finish);
+            } else {
+              return wrap.old.apply(_this, args);
+            }
+          };
+          return finish();
+        };
+        _.extend(wrap, {
+          fns: [],
+          old: target
+        });
+        this[n] = target = wrap;
+      }
+      target.fns.push(fn);
+      return this;
+    }
+  };
+
   Backbone.LazyFetch = function(object) {
     var oldFetch;
     oldFetch = object.fetch;
