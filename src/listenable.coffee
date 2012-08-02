@@ -33,10 +33,9 @@ Backbone.Listenable =
 
     this
 
-  # This function requires the mixin Backbone.OneEvent.
+  # This function requires the mixin Backbone.OneEvent on
+  # `src`.
   listenOne: (src, event, fn) ->
-    @bindings ?= []
-
     handler = @registerHandler src, event, fn
     
     cb = ->

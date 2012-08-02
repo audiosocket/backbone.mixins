@@ -222,9 +222,6 @@
     },
     listenOne: function(src, event, fn) {
       var cb, handler;
-      if (this.bindings == null) {
-        this.bindings = [];
-      }
       handler = this.registerHandler(src, event, fn);
       cb = function() {
         this.removeHandler(handler);
