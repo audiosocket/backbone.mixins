@@ -5,6 +5,9 @@ backbone.mixins
 contains the following extensions:
 
 * `Backbone.Ancestry` to define hiearchy of objects
+* `Backbone.AsynchronousFetch` to turn `Backbone.Model::fetch` into an asynchronous and delayed operation
+* `Backbone.Decoratable` to execute callbacks before executing an asynchronous method
+* `Backbone.OneEvent` to register an event handler that is executed only once.
 * `Backbone.Listenable` to conveniently register and un-register listening callbacks on a `Backbone.Events`-aware object
 * `Backbone.Tagged` to manipulate `Backbone.Model` attributes that contain arrays of tags.
 

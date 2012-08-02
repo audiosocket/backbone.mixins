@@ -3,6 +3,24 @@
 # use `@stopListening` to remove all outgoing bindings.
 
 Backbone.Listenable =
+  # Register handler, returns actual registered element.
+  registerHandler: (src, event, fn) ->
+    @bindings ?= []
+
+    handler = event: event, fn: fn, src: src
+
+    @bindings.push handler
+
+    handler
+
+  # Remove a handler.
+  removeHandler: (handler) ->
+    @bindings ?= []
+
+    pos = @bindings.indexOf handler
+    return if pos == -1
+
+    @bindings.splice pos, 1
 
   # Listen to `event` on `src` with the `fn` callback. `fn` is always
   # called in the context of `this`. Returns `this`.
@@ -11,7 +29,21 @@ Backbone.Listenable =
     @bindings ?= []
 
     src.on event, fn, this
-    @bindings.push event: event, fn: fn, src: src
+    @registerHandler src, event, fn
+
+    this
+
+  # This function requires the mixin Backbone.OneEvent.
+  listenOne: (src, event, fn) ->
+    @bindings ?= []
+
+    handler = @registerHandler src, event, fn
+    
+    cb = ->
+      @removeHandler handler
+      fn.apply this, arguments
+
+    src.one event, cb, this
 
     this
 

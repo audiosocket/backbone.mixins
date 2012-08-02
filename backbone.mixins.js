@@ -188,16 +188,49 @@
   };
 
   Backbone.Listenable = {
+    registerHandler: function(src, event, fn) {
+      var handler;
+      if (this.bindings == null) {
+        this.bindings = [];
+      }
+      handler = {
+        event: event,
+        fn: fn,
+        src: src
+      };
+      this.bindings.push(handler);
+      return handler;
+    },
+    removeHandler: function(handler) {
+      var pos;
+      if (this.bindings == null) {
+        this.bindings = [];
+      }
+      pos = this.bindings.indexOf(handler);
+      if (pos === -1) {
+        return;
+      }
+      return this.bindings.splice(pos, 1);
+    },
     listenTo: function(src, event, fn) {
       if (this.bindings == null) {
         this.bindings = [];
       }
       src.on(event, fn, this);
-      this.bindings.push({
-        event: event,
-        fn: fn,
-        src: src
-      });
+      this.registerHandler(src, event, fn);
+      return this;
+    },
+    listenOne: function(src, event, fn) {
+      var cb, handler;
+      if (this.bindings == null) {
+        this.bindings = [];
+      }
+      handler = this.registerHandler(src, event, fn);
+      cb = function() {
+        this.removeHandler(handler);
+        return fn.apply(this, arguments);
+      };
+      src.one(event, cb, this);
       return this;
     },
     stopListening: function(src) {
@@ -213,6 +246,18 @@
         this.bindings = [];
       }
       return this;
+    }
+  };
+
+  Backbone.OneEvent = {
+    one: function(ev, callback, context) {
+      var fn, self;
+      self = this;
+      fn = function() {
+        callback.apply(this, arguments);
+        return self.unbind.apply(self, [ev, fn]);
+      };
+      return this.bind(ev, fn, context);
     }
   };
 
