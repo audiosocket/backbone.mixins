@@ -49,7 +49,9 @@
     return _.extend(object, {
       fetchTimeout: 700,
       fetchTask: null,
-      ajaxFetch: false,
+      isFetching: function() {
+        return this.fetchTask != null;
+      },
       asyncFetch: function(options) {
         var fn, trigger,
           _this = this;
@@ -76,12 +78,10 @@
         if (this.fetchTask != null) {
           clearTimeout(this.fetchTask);
         } else {
-          this.ajaxFetch = true;
           this.trigger("fetching");
         }
         self = this;
         cb = function() {
-          self.ajaxFetch = false;
           self.fetchTask = null;
           return self.trigger("fetching");
         };
@@ -100,6 +100,68 @@
           }
         };
         return oldFetch.call(object, options);
+      }
+    });
+  };
+
+  Backbone.AsynchronousSave = function(object) {
+    var oldSave;
+    oldSave = object.save;
+    return _.extend(object, {
+      saveTimeout: 700,
+      saveTask: null,
+      ajaxSave: false,
+      asyncSave: function(attributes, options) {
+        var fn, trigger,
+          _this = this;
+        object.set(attributes);
+        if (this.saveTask != null) {
+          clearTimeout(this.saveTask);
+          this.saveTask = null;
+          trigger = false;
+        } else {
+          trigger = true;
+        }
+        fn = function() {
+          return _this.save(null, options);
+        };
+        this.saveTask = setTimeout(fn, this.saveTimeout);
+        if (trigger) {
+          return this.trigger("saving");
+        }
+      },
+      save: function(attributes, options) {
+        var cb, error, self, success;
+        if (options == null) {
+          options = {};
+        }
+        if (this.saveTask != null) {
+          clearTimeout(this.saveTask);
+        } else {
+          this.ajaxSave = true;
+          this.trigger("saving");
+        }
+        self = this;
+        cb = function() {
+          self.ajaxSave = false;
+          self.saveTask = null;
+          return self.trigger("saving");
+        };
+        success = options.success;
+        options.success = function() {
+          cb();
+          if (success != null) {
+            return success.call(this, arguments);
+          }
+        };
+        error = options.error;
+        options.error = function() {
+          cb();
+          if (error != null) {
+            return error.call(this, arguments);
+          }
+        };
+        return oldSave.call(object, attributes, options);
       }
     });
   };

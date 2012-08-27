@@ -27,7 +27,7 @@ Backbone.AsynchronousFetch = (object) ->
   _.extend object,
     fetchTimeout : 700
     fetchTask    : null
-    ajaxFetch    : false
+    isFetching   : -> @fetchTask?
 
     asyncFetch: (options) ->
       if @fetchTask?
@@ -47,13 +47,11 @@ Backbone.AsynchronousFetch = (object) ->
       if @fetchTask?
         clearTimeout @fetchTask
       else
-        @ajaxFetch = true
         @trigger "fetching"
 
       # Wrap fetchTask status
       self = this
       cb = ->
-        self.ajaxFetch = false
         self.fetchTask = null
         self.trigger "fetching"
 
