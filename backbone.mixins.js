@@ -230,17 +230,22 @@
       src.one(event, cb, this);
       return this;
     },
-    stopListening: function(src) {
-      var b, _i, _len, _ref;
+    stopListening: function(src, event, fn) {
+      var b, newBindings, _i, _len, _ref;
       if (this.bindings != null) {
+        newBindings = [];
         _ref = this.bindings;
         for (_i = 0, _len = _ref.length; _i < _len; _i++) {
           b = _ref[_i];
           if (!src || b.src === src) {
-            b.src.off(b.event, b.fn);
+            if ((!(event != null) || event === b.event) && (!(fn != null) || fn === b.fn)) {
+              b.src.off(b.event, b.fn);
+            } else {
+              newBindings.push(b);
+            }
           }
         }
-        this.bindings = [];
+        this.bindings = newBindings;
       }
       return this;
     }

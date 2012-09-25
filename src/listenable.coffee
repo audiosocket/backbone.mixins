@@ -48,11 +48,16 @@ Backbone.Listenable =
 
   # Stop listening to all tracked bindings. Returns `this`.
 
-  stopListening: (src) ->
+  stopListening: (src, event, fn) ->
     if @bindings?
+      newBindings = []
       for b in @bindings when not src or b.src is src
-        b.src.off b.event, b.fn
+        if (not event? or event == b.event) and (not fn? or fn == b.fn)
+          b.src.off b.event, b.fn
+        else
+          newBindings.push b
+          
 
-      @bindings = []
+      @bindings = newBindings
 
     this
